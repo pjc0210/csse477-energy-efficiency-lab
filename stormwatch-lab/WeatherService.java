@@ -13,9 +13,9 @@ final class WeatherService {
     private final List<Thread> workers = new ArrayList<>();
     private final AtomicInteger submitted = new AtomicInteger(), completed = new AtomicInteger();
     private final Screen screen = new Screen(() -> submitted.get() - completed.get());
-    private final FeedSync sync = new FeedSync();
+    // private final FeedSync sync = new FeedSync();
     private final Thread screenThread = new Thread(screen, "screen");
-    private final Thread syncThread = new Thread(sync, "sync");
+    // private final Thread syncThread = new Thread(sync, "sync");
     private int inFlight = 0;
     private boolean refreshActive = false;
     private volatile boolean running = true;
@@ -33,7 +33,7 @@ final class WeatherService {
             t.start();
         }
         screenThread.start();
-        syncThread.start();
+        // syncThread.start();
     }
 
     void submit(Item item) {
@@ -47,10 +47,10 @@ final class WeatherService {
         while (completed.get() < submitted.get()) Thread.sleep(5);
         running = false;
         screen.stop();
-        sync.stop();
+        // sync.stop();
         for (Thread t : workers) t.join();
         screenThread.join();
-        syncThread.join();
+        // syncThread.join();
         storage.close();
     }
 
