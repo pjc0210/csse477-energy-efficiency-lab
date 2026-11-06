@@ -14,10 +14,12 @@ final class Rules {
         if (firstTouch.get(id) == 0) firstTouch.compareAndSet(id, 0, Math.max(1, System.nanoTime()));
     }
 
+    private static final ConcurrentHashMap<Integer, Long> CACHE = new ConcurrentHashMap<>();
+
     // ---- steps (each records when the item first entered processing) ----
     static double[] parse(Item it) { touch(it.id); return it.readings(); }
     static boolean checksumOk(Item it, double[] v) { touch(it.id); return rawChecksum(v) == it.declaredChecksum; }
-    static long fingerprint(Item it) { return rawFingerprint(it.kind, it.payloadSeed); }
+    static long fingerprint(Item it) { return CACHE.computeIfAbsent(it.id, k -> rawFingerprint(it.kind, it.payloadSeed)); }
     static long relevance(Item it, double[] v) { touch(it.id); return rawRelevance(v); }
     static double[] normalize(Item it, double[] v) { touch(it.id); return rawNormalize(v); }
     static int compress(Item it, double[] smooth) { touch(it.id); return rawCompress(smooth); }
